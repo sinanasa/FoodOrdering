@@ -5,12 +5,14 @@ import chromadb
 from llama_index.vector_stores.chroma import ChromaVectorStore
 from llama_index.core import VectorStoreIndex, StorageContext
 from llama_index.llms.openai import OpenAI
+from llama_index.core import PromptTemplate
 # import socket
 # from llama_index.llms.mistralai import MistralAI
 # Need MISTRAL_API_KEY
 # from llama_index.llms.huggingface import HuggingFaceLLM
 # from openai import OpenAI
 import os
+
 
 llm = OpenAI(temperature=0.8, model="gpt-4")
 # llm = OpenAI()
@@ -19,7 +21,7 @@ llm = OpenAI(temperature=0.8, model="gpt-4")
 
 try:
     chat_store = SimpleChatStore.from_persist_path(
-        persist_path="chat_memory.json"
+        persist_path="chat_memory2.json"
     )
 except FileNotFoundError:
     chat_store = SimpleChatStore()
@@ -105,7 +107,8 @@ if chroma_collection.count() > 0:
         ),
     )
 
-    from llama_index.core import PromptTemplate
+    # Start the conversation by saying Thank you for calling Doner Point, how may I assist you today? \
+
     # Order taking prompt
     new_text_qa_tmpl_str = (
         "Context information is below.\n"
@@ -114,7 +117,7 @@ if chroma_collection.count() > 0:
         "---------------------\n"
         "Given the context information and not prior knowledge, "
         "You are Doner Point, an automated service to collect orders for a restaurant. \
-        You first greet the customer, then collects the order, \
+        You first greet the customer, then collect the order, \
         and then asks if it's a pickup or delivery. \
         You wait to collect the entire order, then summarize it and check for a final \
         time if the customer wants to add anything else. \
@@ -156,6 +159,20 @@ else:
     print("No vector db found.  Running without db...")
     chat_engine = SimpleChatEngine.from_defaults(memory=memory, llm=llm)
 
+
+while True:
+    user_message = input("You: ")
+    if user_message.lower() == 'exit':
+        print("Exiting chat...")
+        break
+    # response = get_completion_from_messages(messages, temperature=0)
+    response = chat_engine.chat(user_message)
+    print(f"Chatbot: {response}")
+
+chat_store.persist(persist_path="chat_memory.json")
+
+
+
 # # Server app
 # # Define the host and port
 # HOST = '127.0.0.1'  # Localhost
@@ -196,14 +213,3 @@ else:
 #                 conn.sendall(str(response).encode('utf-8'))
 #
 # # End Server App
-
-while True:
-    user_message = input("You: ")
-    if user_message.lower() == 'exit':
-        print("Exiting chat...")
-        break
-    # response = get_completion_from_messages(messages, temperature=0)
-    response = chat_engine.chat(user_message)
-    print(f"Chatbot: {response}")
-
-chat_store.persist(persist_path="chat_memory.json")

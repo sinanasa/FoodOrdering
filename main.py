@@ -1,7 +1,7 @@
 from speechProcess import SAMPLE_RATE, STREAMING_LIMIT, CHUNK_SIZE, YELLOW, ResumableMicrophoneStream, listen_print_loop
 from google.cloud import speech
 import sys
-
+from orderChat import orderChat
 
 def main() -> None:
     """start bidirectional streaming from microphone input to speech API"""
@@ -16,6 +16,9 @@ def main() -> None:
     streaming_config = speech.StreamingRecognitionConfig(
         config=config, interim_results=True
     )
+
+    chatService = orderChat()
+
 
     mic_manager = ResumableMicrophoneStream(SAMPLE_RATE, CHUNK_SIZE)
     print(mic_manager.chunk_size)
@@ -42,7 +45,7 @@ def main() -> None:
             responses = client.streaming_recognize(streaming_config, requests)
 
             # Now, put the transcription responses to use.
-            listen_print_loop(responses, stream)
+            listen_print_loop(responses, stream, chatService)
 
             if stream.result_end_time > 0:
                 stream.final_request_end_time = stream.is_final_end_time

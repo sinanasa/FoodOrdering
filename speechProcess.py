@@ -186,7 +186,7 @@ class ResumableMicrophoneStream:
             yield b"".join(data)
 
 
-def listen_print_loop(responses: object, stream: object) -> None:
+def listen_print_loop(responses: object, stream: object, chatService) -> None:
     """Iterates through server responses and prints them.
 
     The responses passed is a generator that will block until a response
@@ -243,6 +243,11 @@ def listen_print_loop(responses: object, stream: object) -> None:
             sys.stdout.write(GREEN)
             sys.stdout.write("\033[K")
             sys.stdout.write(str(corrected_time) + ": " + transcript + "\n")
+
+            # print("Call chat with text {}".format(transcript))
+            print(chatService.chatAway(transcript))
+
+
 
             stream.is_final_end_time = stream.result_end_time
             stream.last_transcript_was_final = True

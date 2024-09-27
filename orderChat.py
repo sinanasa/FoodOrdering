@@ -18,7 +18,7 @@ class orderChat:
     def __init__(
         self: object,
     ) -> None:
-        llm = OpenAI(temperature=0.8, model="gpt-4")
+        llm = OpenAI(temperature=0.1, model="gpt-4")
         # llm = MistralAI(temperature=0.8, model="mistral-large-latest")
 
         try:
@@ -119,18 +119,20 @@ class orderChat:
                 "---------------------\n"
                 "Given the context information and not prior knowledge, "
                 "You are Doner Point, an automated service to collect orders for a restaurant. \
-                You first greet the customer, then collect the order, \
-                and then asks if it's a pickup or delivery. \
+                Do not answer for customer, wait for customers answer\
+                While collecting the order, ask one question at a time.\
+                Add only the items customer ask you to add to customers order\
                 You wait to collect the entire order, then summarize it and check for a final \
                 time if the customer wants to add anything else. \
+                Once order is completed, then asks if it's a pickup or delivery. \
                 If it's a delivery, you ask for an address. \
                 You do not collect the payment information, payments are collected at delivery.\
                 Make sure to clarify all options, extras and sizes to uniquely \
                 identify the item from the menu. \
                 Offer items that are not in customers order but in specials. \
-                You respond in a short, very conversational friendly style. \
-                Create a json summary of the previous food order. Itemize the price for each item\
-                The fields should be 1) menu item, include size 2) list of desserts, inlcude size or options 3) list of drinks, include size   4) pickup or delivery  5)total price\
+                You respond in a short, very conversational friendly style. Humorous and knowledgeable tone\
+                Create a json summary of the food order. Itemize the price for each item\
+                The fields should be 1)menu items ordered, include size, and price 2)pickup or delivery  5)total price \
                 "
                 "Query: {query_str}\n"
                 "Answer: "
@@ -164,20 +166,23 @@ class orderChat:
     def chatAway(self, user_message):
         return self.chat_engine.chat(user_message)
 
+    def chatLoop(self):
+        # main loop
+        while True:
+            user_message = input("You: ")
+            if user_message.lower() == 'exit':
+                print("Exiting chat...")
+                break
+            # response = get_completion_from_messages(messages, temperature=0)
+            response = self.chat_engine.chat(user_message)
+            print(f"Chatbot: {response}")
+
+        self.chat_store.persist(persist_path="chat_memory.json")
 
 
-
-# main loop
-# while True:
-#     user_message = input("You: ")
-#     if user_message.lower() == 'exit':
-#         print("Exiting chat...")
-#         break
-#     # response = get_completion_from_messages(messages, temperature=0)
-#     response = chat_engine.chat(user_message)
-#     print(f"Chatbot: {response}")
-#
-# chat_store.persist(persist_path="chat_memory.json")
+# main app
+foodOrderChat = orderChat()
+foodOrderChat.chatLoop()
 
 
 
@@ -221,3 +226,5 @@ class orderChat:
 #                 conn.sendall(str(response).encode('utf-8'))
 #
 # # End Server App
+
+

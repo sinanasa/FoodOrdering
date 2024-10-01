@@ -2,6 +2,8 @@ from speechProcess import SAMPLE_RATE, STREAMING_LIMIT, CHUNK_SIZE, YELLOW, Resu
 from google.cloud import speech
 import sys
 from orderChat import orderChat
+from google.cloud import texttospeech
+
 
 def main() -> None:
     """start bidirectional streaming from microphone input to speech API"""
@@ -16,6 +18,7 @@ def main() -> None:
     streaming_config = speech.StreamingRecognitionConfig(
         config=config, interim_results=True
     )
+
 
     chatService = orderChat()
 

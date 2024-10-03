@@ -258,110 +258,110 @@ def listen_print_loop(responses: object, stream: object, chatService) -> None:
 
 
             # print("Call chat with text {}".format(transcript))
-            # print(chatService.chatAway(transcript))
+            print(chatService.chatAway(transcript))
 #############
-            try:
-                response =  chatService.chatAway(transcript)
-                response_str = str(response).replace('\n','')
-
-
-                #check if the reponse is proper json
-                # if yes process
-                # else reply to customer
-
-                json_string = chatService.extract_json(response_str)
-
-                if json_string:
-                    # Parse the JSON message
-                    try:
-                        order_data = json.loads(json_string)
-                        print("Extracted JSON data:")
-                        print(json.dumps(order_data, indent=2))
-                    except json.JSONDecodeError as e:
-                        print(f"Error decoding JSON: {e}")
-                else:
-                    # print("No JSON data found in the text.")
-                    raise Exception
-
-
-
-                # order_data = json.loads(response_str)
-
-                # One option was to maintain a separate order list by processing each response as json message
-                # if 'general' in jsonResponse['request_type'].replace('_', ' '):
-                #     print(f"Chatbot: {jsonResponse['response']}")
-                # elif 'add' in jsonResponse['request_type'].replace('_', ' '):
-                #     order.add_item(jsonResponse['menu_item_ordered'], jsonResponse['quantity'], jsonResponse['size'])
-                #     print(f"Chatbot: Added {jsonResponse['menu_item_ordered']} to the order")
-                # elif 'completed' in jsonResponse['request_type'].replace('_', ' '):
-                #     self.setPromptOrderTaking3(self.query_engine, order.order_summary())
-                # if len(order) == 0:
-                #     order.append(jsonResponse)
-
-                # Better option is to receive a json when customer order finalized....
-                # Initialize RestaurantOrder object here and send to POS/email. etc.
-
-                # Extract and process the menu items ordered
-                items_ordered = order_data["menu items ordered"]
-                total_price = 0
-
-                print("menu items ordered")
-                for item in items_ordered:
-                    item_name = item["item"]
-                    item_size = item["size"]
-                    item_quantity = item["quantity"]
-                    item_price = float(item["price"].replace('$', ''))  # Convert price to float
-                    total_price += item_price*item_quantity
-                    print(f"{item_quantity} {item_name} ({item_size}) - ${item_price:.2f}")
-
-                # Extract total price from the JSON and compare with calculated total price
-                json_total_price = float(order_data["total price"].replace('$', ''))
-
-                print(f"\nCalculated Total Price: ${total_price:.2f}")
-                print(f"Total Price from JSON: ${json_total_price:.2f}")
-
-                # Check if the calculated total matches the one from the JSON
-                if total_price == json_total_price:
-                    print("The total price matches!")
-                else:
-                    print("Warning: The total price does not match!")
-
-                # # Print delivery information
-                # if order_data["pickup_or_delivery"] != "pickup":
-                #     print(f"Delivery to: {order_data['address']}")
-                # else:
-                #     print("Pickup order")
-
-            except:
-                print(f"Chatbot: {response}")
-                # Set the text input to be synthesized
-                synthesis_input = texttospeech.SynthesisInput(text=response_str)
-
-                # Build the voice request, select the language code ("en-US") and the ssml
-                # voice gender ("neutral")
-                voice = texttospeech.VoiceSelectionParams(
-                    language_code="en-US", ssml_gender=texttospeech.SsmlVoiceGender.NEUTRAL
-                )
-
-                # Select the type of audio file you want returned
-                audio_config = texttospeech.AudioConfig(
-                    audio_encoding=texttospeech.AudioEncoding.MP3
-                )
-
-                # Perform the text-to-speech request on the text input with the selected
-                # voice parameters and audio file type
-                response = client.synthesize_speech(
-                    input=synthesis_input, voice=voice, audio_config=audio_config
-                )
-
-
-                # # The response's audio_content is binary.
-                with open("output.mp3", "w") as out:
-                    # Write the response to the output file.
-                    out.write(response.audio_content)
-                    print('Audio content written to file "output.mp3"')
-
-                playsound("output.mp3")
+            # try:
+            #     response =  chatService.chatAway(transcript)
+            #     response_str = str(response).replace('\n','')
+            #
+            #
+            #     #check if the reponse is proper json
+            #     # if yes process
+            #     # else reply to customer
+            #
+            #     json_string = chatService.extract_json(response_str)
+            #
+            #     if json_string:
+            #         # Parse the JSON message
+            #         try:
+            #             order_data = json.loads(json_string)
+            #             print("Extracted JSON data:")
+            #             print(json.dumps(order_data, indent=2))
+            #         except json.JSONDecodeError as e:
+            #             print(f"Error decoding JSON: {e}")
+            #     else:
+            #         # print("No JSON data found in the text.")
+            #         raise Exception
+            #
+            #
+            #
+            #     # order_data = json.loads(response_str)
+            #
+            #     # One option was to maintain a separate order list by processing each response as json message
+            #     # if 'general' in jsonResponse['request_type'].replace('_', ' '):
+            #     #     print(f"Chatbot: {jsonResponse['response']}")
+            #     # elif 'add' in jsonResponse['request_type'].replace('_', ' '):
+            #     #     order.add_item(jsonResponse['menu_item_ordered'], jsonResponse['quantity'], jsonResponse['size'])
+            #     #     print(f"Chatbot: Added {jsonResponse['menu_item_ordered']} to the order")
+            #     # elif 'completed' in jsonResponse['request_type'].replace('_', ' '):
+            #     #     self.setPromptOrderTaking3(self.query_engine, order.order_summary())
+            #     # if len(order) == 0:
+            #     #     order.append(jsonResponse)
+            #
+            #     # Better option is to receive a json when customer order finalized....
+            #     # Initialize RestaurantOrder object here and send to POS/email. etc.
+            #
+            #     # Extract and process the menu items ordered
+            #     items_ordered = order_data["menu items ordered"]
+            #     total_price = 0
+            #
+            #     print("menu items ordered")
+            #     for item in items_ordered:
+            #         item_name = item["item"]
+            #         item_size = item["size"]
+            #         item_quantity = item["quantity"]
+            #         item_price = float(item["price"].replace('$', ''))  # Convert price to float
+            #         total_price += item_price*item_quantity
+            #         print(f"{item_quantity} {item_name} ({item_size}) - ${item_price:.2f}")
+            #
+            #     # Extract total price from the JSON and compare with calculated total price
+            #     json_total_price = float(order_data["total price"].replace('$', ''))
+            #
+            #     print(f"\nCalculated Total Price: ${total_price:.2f}")
+            #     print(f"Total Price from JSON: ${json_total_price:.2f}")
+            #
+            #     # Check if the calculated total matches the one from the JSON
+            #     if total_price == json_total_price:
+            #         print("The total price matches!")
+            #     else:
+            #         print("Warning: The total price does not match!")
+            #
+            #     # # Print delivery information
+            #     # if order_data["pickup_or_delivery"] != "pickup":
+            #     #     print(f"Delivery to: {order_data['address']}")
+            #     # else:
+            #     #     print("Pickup order")
+            #
+            # except:
+            #     print(f"Chatbot: {response}")
+            #     # Set the text input to be synthesized
+            #     synthesis_input = texttospeech.SynthesisInput(text=response_str)
+            #
+            #     # Build the voice request, select the language code ("en-US") and the ssml
+            #     # voice gender ("neutral")
+            #     voice = texttospeech.VoiceSelectionParams(
+            #         language_code="en-US", ssml_gender=texttospeech.SsmlVoiceGender.NEUTRAL
+            #     )
+            #
+            #     # Select the type of audio file you want returned
+            #     audio_config = texttospeech.AudioConfig(
+            #         audio_encoding=texttospeech.AudioEncoding.MP3
+            #     )
+            #
+            #     # Perform the text-to-speech request on the text input with the selected
+            #     # voice parameters and audio file type
+            #     response = client.synthesize_speech(
+            #         input=synthesis_input, voice=voice, audio_config=audio_config
+            #     )
+            #
+            #
+            #     # # The response's audio_content is binary.
+            #     with open("output.mp3", "w") as out:
+            #         # Write the response to the output file.
+            #         out.write(response.audio_content)
+            #         print('Audio content written to file "output.mp3"')
+            #
+            #     playsound("output.mp3")
 
 ########################### End
 

@@ -23,7 +23,8 @@ class orderChat:
     def __init__(
         self: object,
     ) -> None:
-        llm = OpenAI(temperature=0.1, model="gpt-3.5-turbo")
+        # llm = OpenAI(temperature=0.1, model="gpt-3.5-turbo")
+        llm = OpenAI(temperature=0.1, model="gpt-4")
         # llm = MistralAI(temperature=0.8, model="mistral-large-latest")
 
         # try:
@@ -144,7 +145,8 @@ class orderChat:
                 After customer finishes ordering summarize it and check for a final \
                 time if the customer wants to add anything else. \
                 Make sure to clarify all options, extras and sizes to uniquely identify the item from the menu. \
-                If the item is not on the menu tell the customer politely that item cannot be ordered. \
+                If the item is not on the menu tell the customer politely that item cannot be ordered.\
+                You can use synonyms for menu items. \
                 If customer did not order any appetizers or desserts, offer popular items from appetizers and desserts. \
                 Once order is completed, then asks if it's a pickup or delivery. \
                 If it's a delivery, you ask for an address. \
@@ -159,17 +161,20 @@ class orderChat:
                       'menu_items_ordered': [\
                         {\
                           'item': 'Shepherd Salad',\
-                          'size': 'Regular',\
+                          'size': 'Regular', \
+                          'quantity': 1, \
                           'price': '$8.95'\
                         },\
                         {\
                           'item': 'Gobit',\
-                          'size': 'Small',\
+                          'size': 'Small', \
+                          'quantity': 1, \
                           'price': '$12.95'\
                         },\
                         {\
                           'item': 'Baklava with pistachios',\
-                          'size': 'Regular',\
+                          'size': 'Regular', \
+                          'quantity': 1, \
                           'price': '$6.95'\
                         }\
                       ],\
@@ -185,7 +190,6 @@ class orderChat:
             #     {"response_synthesizer:text_qa_template": new_tmpl}
             # )
 
-
             # Debug
             # prompts_dict = self.query_engine.get_prompts()
             # self.display_prompt_dict(prompts_dict)
@@ -195,7 +199,6 @@ class orderChat:
 
             # chat_engine = CondenseQuestionChatEngine.from_defaults(memory=memory, condense_question_prompt=messages, query_engine=query_engine, llm=llm)
             # self.chat_engine = CondenseQuestionChatEngine.from_defaults(query_engine=self.query_engine, llm=llm)
-
 
 
             self.chat_engine = ContextChatEngine.from_defaults(retriever=self.retriever, query_engine=self.query_engine, llm=llm, system_prompt=new_text_qa_tmpl_str)
@@ -260,54 +263,6 @@ class orderChat:
                 {"response_synthesizer:text_qa_template": new_tmpl}
             )
 
-    def setPromptOrderTaking2(self, query_engine, order):
-            # Order taking prompt
-            new_text_qa_tmpl_str = (
-                "Context information is below.\n"
-                "---------------------\n"
-                "{context_str}\n"
-                "---------------------\n"
-                "Given the context information and not prior knowledge, "
-                "You are Doner Point, an automated service to collect orders for a restaurant. \
-                Identify what customers request is clearly and respond in a short, very conversational friendly style. \
-                If the customer did not specify the size of the item, ask customer to specify.\
-                Create a json summary of the request. and return a proper json message containing request type. \
-                Request type can be add to order, remove from order, modify order item, special instructions, address, general information, order completed, pickup or delivery. \
-                For request types of add to order, remove from order, modify order item, specify order item, \
-                the fields should be 1) menu_item_ordered 2) quantity 3) size 4) price.\
-                If the ordering is done return a json with only request_type value order completed.\
-                Following is the current customer order: \
-                1 small lentil soup, 1 large gobit"
-                "Query: {query_str}\n"
-                "Answer: "
-            )
-            new_tmpl = PromptTemplate(new_text_qa_tmpl_str)
-            query_engine.update_prompts(
-                {"response_synthesizer:text_qa_template": new_tmpl}
-            )
-
-    def setPromptOrderTaking3(self, query_engine, order):
-            # Order taking prompt
-            new_text_qa_tmpl_str = (
-                "Context information is below.\n"
-                "---------------------\n"
-                "{context_str}\n"
-                "---------------------\n"
-                "Given the context information and not prior knowledge, "
-                "You are Doner Point, an automated service to collect orders for a restaurant. \
-                You have started the conversation and it possible that the customer is done ordering.\
-                Customer have already ordered a small chiken soup and a small gobit.\
-                If the customer wants to finish the order or the call return a json with only request_type order completed.\
-                If the customer is done and does not want to add anything else, thank the customer and exit the chat.\
-                Following is the current customer order:\
-                "
-                "Query: {query_str}\n"
-                "Answer: "
-            )
-            new_tmpl = PromptTemplate(new_text_qa_tmpl_str)
-            query_engine.update_prompts(
-                {"response_synthesizer:text_qa_template": new_tmpl}
-            )
 
     def chatAway(self, user_message):
         return self.chat_engine.chat(user_message)
@@ -402,10 +357,10 @@ class orderChat:
                 # Initialize RestaurantOrder object here and send to POS/email. etc.
 
                 # Extract and process the menu items ordered
-                items_ordered = order_data["menu items ordered"]
+                items_ordered = order_data["menu_items_ordered"]
                 total_price = 0
 
-                print("menu items ordered")
+                print("menu_items_ordered")
                 for item in items_ordered:
                     item_name = item["item"]
                     item_size = item["size"]
@@ -415,7 +370,7 @@ class orderChat:
                     print(f"{item_quantity} {item_name} ({item_size}) - ${item_price:.2f}")
 
                 # Extract total price from the JSON and compare with calculated total price
-                json_total_price = float(order_data["total price"].replace('$', ''))
+                json_total_price = float(order_data["total_price"].replace('$', ''))
 
                 print(f"\nCalculated Total Price: ${total_price:.2f}")
                 print(f"Total Price from JSON: ${json_total_price:.2f}")

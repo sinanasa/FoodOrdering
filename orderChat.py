@@ -15,7 +15,7 @@ import os
 import json
 from RestaurantOrder import RestaurantOrder
 from llama_index.core.llms import ChatMessage, MessageRole
-
+from GmailSender import GmailSender
 
 
 class orderChat:
@@ -24,7 +24,7 @@ class orderChat:
         self: object,
     ) -> None:
         # llm = OpenAI(temperature=0.1, model="gpt-3.5-turbo")
-        llm = OpenAI(temperature=0.1, model="gpt-4")
+        llm = OpenAI(temperature=0.1, model="gpt-4-turbo")
         # llm = MistralAI(temperature=0.8, model="mistral-large-latest")
 
         # try:
@@ -147,6 +147,7 @@ class orderChat:
                 Make sure to clarify all options, extras and sizes to uniquely identify the item from the menu. \
                 If the item is not on the menu tell the customer politely that item cannot be ordered.\
                 You can use synonyms for menu items. \
+                Your answers will be read over the phone so do not provide any formatting for reading. \
                 If customer did not order any appetizers or desserts, offer popular items from appetizers and desserts. \
                 Once order is completed, then asks if it's a pickup or delivery. \
                 If it's a delivery, you ask for an address. \
@@ -298,6 +299,9 @@ class orderChat:
         # this is not valid for ContextChatEngine
         self.setPromptInitiateConvo(self.query_engine)
 
+        # init gmailSender
+        gmailSender = GmailSender('algotrader506@gmail.com', 'sevm kgqb wbpo pcrr')
+
         # Debug
         # prompts_dict = self.query_engine.get_prompts()
         # self.display_prompt_dict(prompts_dict)
@@ -381,11 +385,14 @@ class orderChat:
                 else:
                     print("Warning: The total price does not match!")
 
-                # # Print delivery information
-                # if order_data["pickup_or_delivery"] != "pickup":
-                #     print(f"Delivery to: {order_data['address']}")
-                # else:
-                #     print("Pickup order")
+                # Print delivery information
+                if order_data["pickup_or_delivery"] != "pickup":
+                    print(f"Delivery to: {order_data['address']}")
+                else:
+                    print("Pickup order")
+
+                # Send an email with order content (use the same json to create order in pos)
+                gmailSender.send_email("sinan.asa@me.com", "Customer Order 0001", str(json_string))
 
             except:
                 print(f"Chatbot: {response}")
@@ -396,8 +403,8 @@ class orderChat:
 # main app
 ###################################
 ##########
-foodOrderChat = orderChat()
-foodOrderChat.chatLoop()
+# foodOrderChat = orderChat()
+# foodOrderChat.chatLoop()
 
 
 

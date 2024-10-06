@@ -12,6 +12,7 @@ def main() -> None:
         encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
         sample_rate_hertz=SAMPLE_RATE,
         language_code="en-US",
+        # language_code="tr",
         max_alternatives=1,
     )
 
@@ -19,9 +20,7 @@ def main() -> None:
         config=config, interim_results=True
     )
 
-
     chatService = orderChat()
-
 
     mic_manager = ResumableMicrophoneStream(SAMPLE_RATE, CHUNK_SIZE)
     print(mic_manager.chunk_size)
@@ -32,10 +31,10 @@ def main() -> None:
 
     with mic_manager as stream:
         while not stream.closed:
-            sys.stdout.write(YELLOW)
-            sys.stdout.write(
-                "\n" + str(STREAMING_LIMIT * stream.restart_counter) + ": NEW REQUEST\n"
-            )
+            # sys.stdout.write(YELLOW)
+            # sys.stdout.write(
+            #     "\n" + str(STREAMING_LIMIT * stream.restart_counter) + ": NEW REQUEST\n"
+            # )
 
             stream.audio_input = []
             audio_generator = stream.generator()

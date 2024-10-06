@@ -134,6 +134,12 @@ class orderChat:
                 ),
             )
 
+
+            # Potential additions to the prompt
+            # Your answers will be read over the phone so do not provide any formatting like headers, bullet points, or numbered lists for reading. \
+            # When you are listing menu items, do not include price of the item. \
+
+
             # Order taking prompt
             new_text_qa_tmpl_str = (
                 "Context information is below.\n"
@@ -147,7 +153,6 @@ class orderChat:
                 Make sure to clarify all options, extras and sizes to uniquely identify the item from the menu. \
                 If the item is not on the menu tell the customer politely that item cannot be ordered.\
                 You can use synonyms for menu items. \
-                Your answers will be read over the phone so do not provide any formatting for reading. \
                 If customer did not order any appetizers or desserts, offer popular items from appetizers and desserts. \
                 Once order is completed, then asks if it's a pickup or delivery. \
                 If it's a delivery, you ask for an address. \
@@ -367,7 +372,10 @@ class orderChat:
                 print("menu_items_ordered")
                 for item in items_ordered:
                     item_name = item["item"]
-                    item_size = item["size"]
+                    try:
+                        item_size = item["size"]
+                    except:
+                        pass
                     item_quantity = item["quantity"]
                     item_price = float(item["price"].replace('$', ''))  # Convert price to float
                     total_price += item_price*item_quantity
